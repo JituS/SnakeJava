@@ -11,10 +11,11 @@ public class Board extends JFrame implements KeyListener{
     private boolean isGameOver = false;
     private TimerTask task;
     private Coordinate food;
+    private int score;
 
     public Board(Snake snake) {
         this.snake = snake;
-        this.food = new Coordinate((int)Math.round(Math.random()*99)*5,(int)Math.round((Math.random()*99))*5);
+        this.food = new Coordinate((int)Math.round(Math.random()*40)*10,(int)Math.round((Math.random()*40))*10);
         setSize(500, 500);
         setResizable(false);
         Color color = new Color(193,193,193);
@@ -34,10 +35,11 @@ public class Board extends JFrame implements KeyListener{
     }
 
     public void restart(Graphics g){
+        score = 0;
         for (Coordinate coordinate : this.snake.getBody()) {
-            g.clearRect(coordinate.getX(), coordinate.getY(), 5, 5);
+            g.clearRect(0,0, getWidth(),getHeight());
             ArrayList<Coordinate> cords = new ArrayList<>();
-            for (int i = 100; i <= 125; i += 5) {
+            for (int i = 100; i <= 140; i += 10) {
                 Coordinate c = new Coordinate(100, i);
                 cords.add(c);
             }
@@ -52,13 +54,15 @@ public class Board extends JFrame implements KeyListener{
             restart(g);
         }
         if (snake.prev != null) {
-            g.clearRect(this.snake.prev.getX(), this.snake.prev.getY(), 5, 5);
+            g.clearRect(0,0, getWidth(),getHeight());
         }
         for (Coordinate coordinate : snake.getBody()) {
             g.setColor(new Color(2, 3, 2));
-            g.fillRect(coordinate.getX(), coordinate.getY(), 5, 5);
+            g.fillRect(coordinate.getX(), coordinate.getY(), 10, 10);
+            g.fillRect(food.getX(), food.getY(), 10, 10);
         }
-        g.fillRect(food.getX(), food.getY(), 5, 5);
+        g.setFont(new Font("Times new Roman", 25, 25));
+        g.drawString("Score:" + score , 400, 40);
     }
 
     public void moveSnake(String direction){
@@ -67,8 +71,9 @@ public class Board extends JFrame implements KeyListener{
             @Override
             public void run() {
                 if(snake.eat(food)){
+                    score++;
                     placeFood();
-                }
+                };
                 if(snake.isDead(direction)){
                     isGameOver = true;
                     cancel();
@@ -82,7 +87,7 @@ public class Board extends JFrame implements KeyListener{
             }
         };
         java.util.Timer timer = new java.util.Timer();
-        timer.schedule(task,new Date(), 50);
+        timer.schedule(task,new Date(), 70);
     }
 
     public void keyPressed(KeyEvent e) {
@@ -101,6 +106,6 @@ public class Board extends JFrame implements KeyListener{
     }
 
     private void placeFood() {
-        this.food = new Coordinate((int)Math.round(Math.random()*99)*5,(int)Math.round((Math.random()*99))*5);
+        this.food = new Coordinate((int)Math.round(Math.random()*40)*10,(int)Math.round((Math.random()*40))*10);
     }
 }
