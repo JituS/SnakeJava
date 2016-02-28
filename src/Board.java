@@ -8,12 +8,17 @@ import java.util.TimerTask;
 
 public class Board extends JFrame implements KeyListener{
     private Snake snake;
+    private boolean isGameOver = false;
     private TimerTask task;
     private Coordinate food;
+
     public Board(Snake snake) {
         this.snake = snake;
-        this.food = new Coordinate((int)Math.round(Math.random()*100)*5,(int)Math.round((Math.random()*100))*5);
+        this.food = new Coordinate((int)Math.round(Math.random()*99)*5,(int)Math.round((Math.random()*99))*5);
         setSize(500, 500);
+        setResizable(false);
+        Color color = new Color(193,193,193);
+        setBackground(color);
         setTitle("Snake Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
@@ -27,8 +32,25 @@ public class Board extends JFrame implements KeyListener{
     public void keyTyped(KeyEvent e) {
 
     }
+
+    public void restart(Graphics g){
+        for (Coordinate coordinate : this.snake.getBody()) {
+            g.clearRect(coordinate.getX(), coordinate.getY(), 5, 5);
+            ArrayList<Coordinate> cords = new ArrayList<>();
+            for (int i = 100; i <= 125; i += 5) {
+                Coordinate c = new Coordinate(100, i);
+                cords.add(c);
+            }
+            snake = new Snake(cords, cords.get(0));
+            isGameOver = false;
+            repaint();
+        }
+    }
     @Override
     public void paint(Graphics g) {
+        if(isGameOver) {
+            restart(g);
+        }
         if (snake.prev != null) {
             g.clearRect(this.snake.prev.getX(), this.snake.prev.getY(), 5, 5);
         }
@@ -47,7 +69,15 @@ public class Board extends JFrame implements KeyListener{
                 if(snake.eat(food)){
                     placeFood();
                 }
-                snake.move(direction);
+                if(snake.isDead(direction)){
+                    isGameOver = true;
+                    cancel();
+                }else{
+                   boolean moved =  snake.move(direction);
+                    if(!moved){
+                        moveSnake(snake.direction1);
+                    }
+                }
                 repaint();
             }
         };
@@ -70,19 +100,7 @@ public class Board extends JFrame implements KeyListener{
         }
     }
 
-    public static void main(String[] args) {
-        ArrayList<Coordinate> cords = new ArrayList<>();
-        for (int i = 100; i <= 125; i+=5){
-            Coordinate c = new Coordinate(100, i);
-            cords.add(c);
-        }
-        Snake snake = new Snake(cords, cords.get(0));
-        Board board = new Board(snake);
-        board.repaint();
-        board.addKeyListener(board);
-    }
-
     private void placeFood() {
-        this.food = new Coordinate((int)Math.round(Math.random()*100)*5,(int)Math.round((Math.random()*100))*5);
+        this.food = new Coordinate((int)Math.round(Math.random()*99)*5,(int)Math.round((Math.random()*99))*5);
     }
 }
